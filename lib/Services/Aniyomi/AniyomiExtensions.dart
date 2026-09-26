@@ -44,8 +44,11 @@ class AniyomiExtensions extends Extension {
   Map<String, ExtensionSetting>? get settings => {
         'use_internal_anime_extension_loading': ExtensionSetting(
           label: 'Aniyomi Internal Anime Extensions',
-          description: 'Install anime extensions only to AnymeX (No Package Manager)',
-          value: getVal<bool>('use_internal_anime_extension_loading', defaultValue: false) ?? false,
+          description:
+              'Install anime extensions only to AnymeX (No Package Manager)',
+          value: getVal<bool>('use_internal_anime_extension_loading',
+                  defaultValue: false) ??
+              false,
           type: 'bool',
           onChanged: (val) {
             setVal('use_internal_anime_extension_loading', val as bool);
@@ -53,8 +56,11 @@ class AniyomiExtensions extends Extension {
         ),
         'use_internal_manga_extension_loading': ExtensionSetting(
           label: 'Aniyomi Internal Manga Extensions',
-          description: 'Install manga extensions only to AnymeX (No Package Manager)',
-          value: getVal<bool>('use_internal_manga_extension_loading', defaultValue: false) ?? false,
+          description:
+              'Install manga extensions only to AnymeX (No Package Manager)',
+          value: getVal<bool>('use_internal_manga_extension_loading',
+                  defaultValue: false) ??
+              false,
           type: 'bool',
           onChanged: (val) {
             setVal('use_internal_manga_extension_loading', val as bool);
@@ -63,7 +69,8 @@ class AniyomiExtensions extends Extension {
         'custom_anime_apk_path': ExtensionSetting(
           label: 'Custom Anime APK Path',
           description: 'Custom path to load anime extension APKs from',
-          value: getVal<String>('custom_anime_apk_path', defaultValue: '') ?? '',
+          value:
+              getVal<String>('custom_anime_apk_path', defaultValue: '') ?? '',
           type: 'string',
           onChanged: (val) {
             setVal('custom_anime_apk_path', val as String);
@@ -72,7 +79,8 @@ class AniyomiExtensions extends Extension {
         'custom_manga_apk_path': ExtensionSetting(
           label: 'Custom Manga APK Path',
           description: 'Custom path to load manga extension APKs from',
-          value: getVal<String>('custom_manga_apk_path', defaultValue: '') ?? '',
+          value:
+              getVal<String>('custom_manga_apk_path', defaultValue: '') ?? '',
           type: 'string',
           onChanged: (val) {
             setVal('custom_manga_apk_path', val as String);
@@ -82,10 +90,13 @@ class AniyomiExtensions extends Extension {
 
   @override
   Future<void> fetchInstalledAnimeExtensions() async {
-    final path = getVal<String>('custom_anime_apk_path', defaultValue: '') ?? '';
-    final list = await _loadInstalled('getInstalledAnimeExtensions', ItemType.anime, path);
+    final path =
+        getVal<String>('custom_anime_apk_path', defaultValue: '') ?? '';
+    final list = await _loadInstalled(
+        'getInstalledAnimeExtensions', ItemType.anime, path);
     getInstalledRx(ItemType.anime).value = list;
-    final available = getRawAvailableRx(ItemType.anime).value.whereType<ASource>().toList();
+    final available =
+        getRawAvailableRx(ItemType.anime).value.whereType<ASource>().toList();
     if (available.isNotEmpty) {
       _detectUpdates(available, ItemType.anime);
     }
@@ -93,10 +104,13 @@ class AniyomiExtensions extends Extension {
 
   @override
   Future<void> fetchInstalledMangaExtensions() async {
-    final path = getVal<String>('custom_manga_apk_path', defaultValue: '') ?? '';
-    final list = await _loadInstalled('getInstalledMangaExtensions', ItemType.manga, path);
+    final path =
+        getVal<String>('custom_manga_apk_path', defaultValue: '') ?? '';
+    final list = await _loadInstalled(
+        'getInstalledMangaExtensions', ItemType.manga, path);
     getInstalledRx(ItemType.manga).value = list;
-    final available = getRawAvailableRx(ItemType.manga).value.whereType<ASource>().toList();
+    final available =
+        getRawAvailableRx(ItemType.manga).value.whereType<ASource>().toList();
     if (available.isNotEmpty) {
       _detectUpdates(available, ItemType.manga);
     }
@@ -105,11 +119,13 @@ class AniyomiExtensions extends Extension {
   @override
   Future<void> fetchInstalledNovelExtensions() async {}
 
-  Future<List<Source>> _loadInstalled(String method, ItemType type, String path) async {
+  Future<List<Source>> _loadInstalled(
+      String method, ItemType type, String path) async {
     try {
       final List<dynamic> result = await platform.invokeMethod(method, path);
       final parsed = result
-          .map((e) => ASource.fromJson(Map<String, dynamic>.from(e))..managerId = id)
+          .map((e) =>
+              ASource.fromJson(Map<String, dynamic>.from(e))..managerId = id)
           .where((s) => s.itemType == type)
           .toList(growable: false);
 
@@ -204,7 +220,12 @@ class AniyomiExtensions extends Extension {
   }
 
   static List<Source> _parseExtensions(
-    (Uint8List bodyBytes, String repoUrl, ItemType itemType, String managerId) args,
+    (
+      Uint8List bodyBytes,
+      String repoUrl,
+      ItemType itemType,
+      String managerId
+    ) args,
   ) {
     final (bodyBytes, repoUrl, targetType, managerId) = args;
 
@@ -229,10 +250,14 @@ class AniyomiExtensions extends Extension {
         decoded = PbDecoder.decodeIndex(bytes);
       }
 
-      final baseIconUrl = repoUrl
+      var baseIconUrl = repoUrl
           .replaceAll('/index.min.json', '')
+          .replaceAll('/index.json', '')
           .replaceAll('/index.pb.gz', '')
           .replaceAll('/index.pb', '');
+      if (baseIconUrl.endsWith('/')) {
+        baseIconUrl = baseIconUrl.substring(0, baseIconUrl.length - 1);
+      }
       final sources = <Source>[];
 
       for (final item in decoded) {
@@ -398,9 +423,11 @@ class AniyomiExtensions extends Extension {
       String? targetDir = customPath;
       if (targetDir == null || targetDir.isEmpty) {
         if (aSource.itemType == ItemType.anime) {
-          targetDir = getVal<String>('custom_anime_apk_path', defaultValue: '') ?? '';
+          targetDir =
+              getVal<String>('custom_anime_apk_path', defaultValue: '') ?? '';
         } else if (aSource.itemType == ItemType.manga) {
-          targetDir = getVal<String>('custom_manga_apk_path', defaultValue: '') ?? '';
+          targetDir =
+              getVal<String>('custom_manga_apk_path', defaultValue: '') ?? '';
         }
       }
 
@@ -418,7 +445,8 @@ class AniyomiExtensions extends Extension {
           isCustomPath = true;
           Logger.log('Saved APK to custom storage path: ${apkFile.path}');
         } catch (e) {
-          Logger.log('Permission issue or write failure at custom path "$targetDir": $e. Falling back to default temporary directory.');
+          Logger.log(
+              'Permission issue or write failure at custom path "$targetDir": $e. Falling back to default temporary directory.');
           apkFile = File(path.join(defaultTempDir.path, apkFileName));
           await apkFile.writeAsBytes(res.bodyBytes);
         }
@@ -428,15 +456,21 @@ class AniyomiExtensions extends Extension {
       }
 
       final useInternalSetting = aSource.itemType == ItemType.anime
-          ? (getVal<bool>('use_internal_anime_extension_loading', defaultValue: false) ?? false)
-          : (getVal<bool>('use_internal_manga_extension_loading', defaultValue: false) ?? false);
+          ? (getVal<bool>('use_internal_anime_extension_loading',
+                  defaultValue: false) ??
+              false)
+          : (getVal<bool>('use_internal_manga_extension_loading',
+                  defaultValue: false) ??
+              false);
 
       final allInstalled = [
         ...getInstalledRx(ItemType.anime).value.whereType<ASource>(),
         ...getInstalledRx(ItemType.manga).value.whereType<ASource>(),
       ];
       final currentlyInstalled = allInstalled.firstWhereOrNull((s) =>
-          (s.pkgName != null && aSource.pkgName != null && s.pkgName == aSource.pkgName) ||
+          (s.pkgName != null &&
+              aSource.pkgName != null &&
+              s.pkgName == aSource.pkgName) ||
           s.id == aSource.id ||
           s.name == aSource.name);
 
@@ -450,7 +484,8 @@ class AniyomiExtensions extends Extension {
       final bool shouldInstallInternal;
       if (isSystemInstalled) {
         shouldInstallInternal = false;
-      } else if (currentlyInstalled != null && currentlyInstalled.isPrivate != null) {
+      } else if (currentlyInstalled != null &&
+          currentlyInstalled.isPrivate != null) {
         shouldInstallInternal = currentlyInstalled.isPrivate!;
       } else if (aSource.isPrivate != null) {
         shouldInstallInternal = aSource.isPrivate!;
@@ -508,7 +543,8 @@ class AniyomiExtensions extends Extension {
   Future<bool> installSourceInternal(Source source, String apkPath) async {
     final s = source as ASource;
     try {
-      final success = await platform.invokeMethod<bool>('installSourceInternal', {
+      final success =
+          await platform.invokeMethod<bool>('installSourceInternal', {
         'apkPath': apkPath,
         'isAnime': s.itemType == ItemType.anime,
       });
@@ -527,7 +563,9 @@ class AniyomiExtensions extends Extension {
       throw Exception('Source ID is required for uninstallation.');
     }
     final type = source.itemType ??
-        (packageName.contains('animeextension') ? ItemType.anime : ItemType.manga);
+        (packageName.contains('animeextension')
+            ? ItemType.anime
+            : ItemType.manga);
 
     try {
       try {
@@ -541,7 +579,8 @@ class AniyomiExtensions extends Extension {
       if (isSystemInstalled) {
         final success = await DeviceApps.uninstallApp(packageName);
         if (!success) {
-          throw Exception('Failed to initiate uninstallation for: $packageName');
+          throw Exception(
+              'Failed to initiate uninstallation for: $packageName');
         }
 
         const timeout = Duration(seconds: 10);
@@ -559,8 +598,11 @@ class AniyomiExtensions extends Extension {
         }
       }
 
-      getInstalledRx(type).value =
-          getInstalledRx(type).value.where((e) => e.id != s.id && (e is ASource ? e.pkgName : null) != packageName).toList();
+      getInstalledRx(type).value = getInstalledRx(type)
+          .value
+          .where((e) =>
+              e.id != s.id && (e is ASource ? e.pkgName : null) != packageName)
+          .toList();
 
       switch (type) {
         case ItemType.anime:
