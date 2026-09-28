@@ -1,5 +1,11 @@
 # AnymeX Extension Runtime Bridge
 
+> **This is a fork** of [AnymeXExtensionRuntimeBridge](https://github.com/RyanYuuki/AnymeXExtensionRuntimeBridge)
+> by RyanYuuki, used by [AnymeX-HV](https://github.com/HeartlessVeteran2/AnymeX-HV).
+> It fixes Mangayomi sources that were missing settings (API URL, date format), and serves the
+> runtime downloads from this repository.
+> **See [HV_CHANGES.md](HV_CHANGES.md) for everything this fork changes.**
+
 A powerful Flutter plugin built around a **unified, runtime-agnostic API** for loading and executing **Aniyomi**, **CloudStream**, **Mangayomi**, and **Sora** extension sources through a single consistent interface.
 
 ---
