@@ -44,7 +44,7 @@ This will automatically download and place:
 
 All files are placed under `Documents\AnymeX\Tools\` which is exactly where the app looks for them.
 
-**Options** (append after the command using `-- <flag>`):
+**Options** (run the script as a script block so it receives the flags; `irm ... | iex` can't pass them):
 
 | Flag | Effect |
 |------|--------|
@@ -55,7 +55,7 @@ All files are placed under `Documents\AnymeX\Tools\` which is exactly where the 
 
 Example — force only a JAR update:
 ```powershell
-irm https://raw.githubusercontent.com/HeartlessVeteran2/AnymeXExtensionRuntimeBridge-HV/main/scripts/setup-windows.ps1 | iex -- --force-jar
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/HeartlessVeteran2/AnymeXExtensionRuntimeBridge-HV/main/scripts/setup-windows.ps1))) --force-jar
 ```
 
 ---

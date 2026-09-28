@@ -32,7 +32,9 @@ jobs:
         run: |
           set -euo pipefail
           branch=$(gh api "repos/$GITHUB_REPOSITORY" --jq .default_branch)
-          latest=$(gh api "repos/$UPSTREAM/releases/latest" --jq .tag_name || true)
+          # Fails the run (retried tomorrow) rather than copying with the
+          # wrong release marked latest: the app installs releases/latest.
+          latest=$(gh api "repos/$UPSTREAM/releases/latest" --jq .tag_name)
           # The API lists newest first; copy oldest first.
           gh api "repos/$UPSTREAM/releases?per_page=$KEEP" \
             --jq '.[] | select(.draft | not) | [.tag_name, (.prerelease | tostring)] | @tsv' \
@@ -44,7 +46,13 @@ jobs:
             fi
             dir="assets/$tag"
             mkdir -p "$dir"
-            gh release download "$tag" --repo "$UPSTREAM" --dir "$dir" || true
+            # A partial download would be published as-is and never fixed
+            # (the release then exists here), so skip it; the next run retries.
+            if ! gh release download "$tag" --repo "$UPSTREAM" --dir "$dir"; then
+              echo "skip $tag: download failed"
+              rm -rf "$dir"
+              continue
+            fi
             if [ -z "$(ls -A "$dir")" ]; then
               echo "skip $tag: no assets"
               continue

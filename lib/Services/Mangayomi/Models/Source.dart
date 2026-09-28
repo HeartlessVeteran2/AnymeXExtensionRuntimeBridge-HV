@@ -91,7 +91,7 @@ class MSource extends Source {
     );
   }
 
-  static String? _string(dynamic value) => value?.toString();
+  static String? _string(dynamic value) => value is String ? value : null;
 
   @override
   Map<String, dynamic> toJson() {
