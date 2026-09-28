@@ -20,10 +20,10 @@ $Dex2JarDir   = Join-Path $ToolsDir 'dex-tools-v2.4'
 $JarDest      = Join-Path $ToolsDir 'anymex_desktop_runtime.jar'
 $MetadataDest = Join-Path $ToolsDir 'metadata.json'
 
-$JarUrl     = 'https://github.com/RyanYuuki/AnymeXExtensionRuntimeBridge/releases/latest/download/anymex_desktop_runtime.jar'
+$JarUrl     = 'https://github.com/HeartlessVeteran2/AnymeXExtensionRuntimeBridge-HV/releases/latest/download/anymex_desktop_runtime.jar'
 $JreUrl     = 'https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.12+7/OpenJDK17U-jre_x64_windows_hotspot_17.0.12_7.zip'
 $Dex2JarUrl = 'https://github.com/pxb1988/dex2jar/releases/download/v2.4/dex-tools-v2.4.zip'
-$ReleaseApi = 'https://api.github.com/repos/RyanYuuki/AnymeXExtensionRuntimeBridge/releases/latest'
+$ReleaseApi = 'https://api.github.com/repos/HeartlessVeteran2/AnymeXExtensionRuntimeBridge-HV/releases/latest'
 
 function Download-File {
     param([string]$Url, [string]$Dest, [string]$Label)

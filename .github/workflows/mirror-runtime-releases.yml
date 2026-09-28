@@ -1,0 +1,60 @@
+name: Mirror runtime releases
+
+# The app downloads the Android runtime host (anymex_runtime_host.apk) and the
+# desktop runtime (.jar) from this repo's releases, and lists them for updates
+# and rollback. They are built upstream; this copies upstream's recent
+# releases here (same tag, title, notes and assets) so the app only depends on
+# this fork. Runs daily, on demand, and when this file changes.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 5 * * *'
+  push:
+    paths:
+      - .github/workflows/mirror-runtime-releases.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mirror-runtime-releases
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      UPSTREAM: RyanYuuki/AnymeXExtensionRuntimeBridge
+      KEEP: '10'
+    steps:
+      - name: Copy releases this repo doesn't have yet
+        run: |
+          set -euo pipefail
+          branch=$(gh api "repos/$GITHUB_REPOSITORY" --jq .default_branch)
+          latest=$(gh api "repos/$UPSTREAM/releases/latest" --jq .tag_name || true)
+          # The API lists newest first; copy oldest first.
+          gh api "repos/$UPSTREAM/releases?per_page=$KEEP" \
+            --jq '.[] | select(.draft | not) | [.tag_name, (.prerelease | tostring)] | @tsv' \
+            | tac > upstream.tsv
+          while IFS=$'\t' read -r tag pre; do
+            if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+              echo "have $tag"
+              continue
+            fi
+            dir="assets/$tag"
+            mkdir -p "$dir"
+            gh release download "$tag" --repo "$UPSTREAM" --dir "$dir" || true
+            if [ -z "$(ls -A "$dir")" ]; then
+              echo "skip $tag: no assets"
+              continue
+            fi
+            gh api "repos/$UPSTREAM/releases/tags/$tag" --jq '.body // ""' > "$dir.notes"
+            title=$(gh api "repos/$UPSTREAM/releases/tags/$tag" --jq '.name // .tag_name')
+            flags=()
+            if [ "$pre" = true ]; then flags+=(--prerelease); fi
+            if [ "$tag" = "$latest" ]; then flags+=(--latest); else flags+=(--latest=false); fi
+            gh release create "$tag" "$dir"/* --repo "$GITHUB_REPOSITORY" \
+              --target "$branch" --title "$title" --notes-file "$dir.notes" "${flags[@]}"
+            echo "copied $tag"
+          done < upstream.tsv

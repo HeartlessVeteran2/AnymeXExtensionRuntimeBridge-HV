@@ -65,7 +65,7 @@ class TorrentStreamResolver {
     if (!Platform.isAndroid) return;
     final abi = await getDeviceAbi();
     final url =
-        'https://raw.githubusercontent.com/RyanYuuki/AnymeXExtensionRuntimeBridge/main/prebuilt/android/$abi/liblibtorrent_flutter.so';
+        'https://raw.githubusercontent.com/HeartlessVeteran2/AnymeXExtensionRuntimeBridge-HV/main/prebuilt/android/$abi/liblibtorrent_flutter.so';
     Logger.log('[TorrentResolver] Downloading torrent engine from: $url');
 
     final path = await getEngineSoPath();
