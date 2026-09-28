@@ -15,9 +15,9 @@ class RuntimeDownloader {
   final _client = http.Client();
 
   static const String androidApkUrl =
-      "https://github.com/RyanYuuki/AnymeXExtensionRuntimeBridge/releases/latest/download/anymex_runtime_host.apk";
+      "https://github.com/HeartlessVeteran2/AnymeXExtensionRuntimeBridge-HV/releases/latest/download/anymex_runtime_host.apk";
   static const String desktopJarUrl =
-      "https://github.com/RyanYuuki/AnymeXExtensionRuntimeBridge/releases/latest/download/anymex_desktop_runtime.jar";
+      "https://github.com/HeartlessVeteran2/AnymeXExtensionRuntimeBridge-HV/releases/latest/download/anymex_desktop_runtime.jar";
   static const String dex2jarUrl =
       "https://github.com/pxb1988/dex2jar/releases/download/v2.4/dex-tools-v2.4.zip";
 

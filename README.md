@@ -34,7 +34,7 @@ The bridge allows your app to stay small while offloading heavy execution logic 
 If the runtime failed to download inside the app, run this single command in **PowerShell** (no admin needed):
 
 ```powershell
-irm https://raw.githubusercontent.com/RyanYuuki/AnymeXExtensionRuntimeBridge/main/scripts/setup-windows.ps1 | iex
+irm https://raw.githubusercontent.com/HeartlessVeteran2/AnymeXExtensionRuntimeBridge-HV/main/scripts/setup-windows.ps1 | iex
 ```
 
 This will automatically download and place:
@@ -55,7 +55,7 @@ All files are placed under `Documents\AnymeX\Tools\` which is exactly where the 
 
 Example — force only a JAR update:
 ```powershell
-irm https://raw.githubusercontent.com/RyanYuuki/AnymeXExtensionRuntimeBridge/main/scripts/setup-windows.ps1 | iex -- --force-jar
+irm https://raw.githubusercontent.com/HeartlessVeteran2/AnymeXExtensionRuntimeBridge-HV/main/scripts/setup-windows.ps1 | iex -- --force-jar
 ```
 
 ---
