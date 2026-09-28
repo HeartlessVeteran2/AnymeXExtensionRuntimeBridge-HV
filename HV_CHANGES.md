@@ -46,7 +46,10 @@ The mirror has these safeguards:
 - A release whose download fails is skipped and retried the next day. It is never published
   with only some of its files.
 
-A release published here with a higher version number takes priority over the mirrored ones.
+The app downloads the release marked **Latest** here (GitHub's `releases/latest`), not the one
+with the highest version number. The mirror marks a copied release Latest when it is upstream's
+latest. To ship your own build instead, publish it here as Latest. The next time the mirror
+copies a newer upstream release, that release becomes Latest again.
 [#2](https://github.com/HeartlessVeteran2/AnymeXExtensionRuntimeBridge-HV/pull/2),
 [#3](https://github.com/HeartlessVeteran2/AnymeXExtensionRuntimeBridge-HV/pull/3)
 
