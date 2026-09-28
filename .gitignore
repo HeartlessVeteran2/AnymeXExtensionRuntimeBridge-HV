@@ -28,3 +28,6 @@ doc/api/
 
 test/
 /output
+
+# Flutter build output (e.g. from running tests)
+/build/
