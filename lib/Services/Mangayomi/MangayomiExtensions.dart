@@ -190,7 +190,12 @@ class MangayomiExtensions extends Extension {
   void _detectUpdates(List<Source> available, ItemType type) {
     final installed = _loadInstalled(type);
 
-    final repoMap = {for (var s in available) s.id: s};
+    // [available] has the installed sources taken out, so look them up in
+    // the full repo list.
+    final repoMap = {
+      for (var s in getRawAvailableRx(type).value) s.id: s,
+      for (var s in available) s.id: s,
+    };
 
     bool changed = false;
 
@@ -199,6 +204,10 @@ class MangayomiExtensions extends Extension {
       final repo = repoMap[inst.id];
 
       if (repo == null) continue;
+
+      if (repo is MSource && inst.fillMissingFrom(repo)) {
+        changed = true;
+      }
 
       if (compareVersions(repo.version ?? "0", inst.version ?? "0") > 0) {
         installed[i] = inst
