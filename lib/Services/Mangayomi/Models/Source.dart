@@ -11,6 +11,24 @@ class MSource extends Source {
 
   SourceCodeLanguage sourceCodeLanguage = SourceCodeLanguage.dart;
 
+  // Passed to the extension as `source.*` (see [toMSource]). API sources
+  // build every request from [apiUrl] (MangaDex, Comick) and Madara sources
+  // parse chapter dates with [dateFormat]; without them they fail with
+  // "relative URL without a base" or a null error.
+  String? apiUrl;
+
+  String? dateFormat;
+
+  String? dateFormatLocale;
+
+  String? additionalParams;
+
+  String? notes;
+
+  bool? hasCloudflare;
+
+  bool? isFullData;
+
   MSource({
     super.id,
     super.name,
@@ -29,6 +47,13 @@ class MSource extends Source {
     this.sourceCode,
     this.headers,
     this.sourceCodeLanguage = SourceCodeLanguage.dart,
+    this.apiUrl,
+    this.dateFormat,
+    this.dateFormatLocale,
+    this.additionalParams,
+    this.notes,
+    this.hasCloudflare,
+    this.isFullData,
   });
 
   factory MSource.fromJson(Map<String, dynamic> json) {
@@ -56,8 +81,17 @@ class MSource extends Source {
       sourceCodeLanguage: isLnReader
           ? SourceCodeLanguage.lnreader
           : SourceCodeLanguage.values[json['sourceCodeLanguage'] ?? 0],
+      apiUrl: _string(json['apiUrl']),
+      dateFormat: _string(json['dateFormat']),
+      dateFormatLocale: _string(json['dateFormatLocale']),
+      additionalParams: _string(json['additionalParams']),
+      notes: _string(json['notes']),
+      hasCloudflare: json['hasCloudflare'] is bool ? json['hasCloudflare'] : null,
+      isFullData: json['isFullData'] is bool ? json['isFullData'] : null,
     );
   }
+
+  static String? _string(dynamic value) => value?.toString();
 
   @override
   Map<String, dynamic> toJson() {
@@ -66,7 +100,34 @@ class MSource extends Source {
     json['sourceCodeUrl'] = sourceCodeUrl;
     json['headers'] = headers;
     json['sourceCodeLanguage'] = sourceCodeLanguage.index;
+    json['apiUrl'] = apiUrl;
+    json['dateFormat'] = dateFormat;
+    json['dateFormatLocale'] = dateFormatLocale;
+    json['additionalParams'] = additionalParams;
+    json['notes'] = notes;
+    json['hasCloudflare'] = hasCloudflare;
+    json['isFullData'] = isFullData;
     return json;
+  }
+
+  /// Fills the fields a source installed by an older version didn't save,
+  /// from its repo entry. Returns whether anything changed.
+  bool fillMissingFrom(MSource repo) {
+    var changed = false;
+    T? take<T>(T? mine, T? theirs) {
+      if (mine != null || theirs == null) return mine;
+      changed = true;
+      return theirs;
+    }
+
+    apiUrl = take(apiUrl, repo.apiUrl);
+    dateFormat = take(dateFormat, repo.dateFormat);
+    dateFormatLocale = take(dateFormatLocale, repo.dateFormatLocale);
+    additionalParams = take(additionalParams, repo.additionalParams);
+    notes = take(notes, repo.notes);
+    hasCloudflare = take(hasCloudflare, repo.hasCloudflare);
+    isFullData = take(isFullData, repo.isFullData);
+    return changed;
   }
 
   // bool get isTorrent => (typeSource?.toLowerCase() ?? "") == "torrent";
@@ -75,10 +136,15 @@ class MSource extends Source {
     return m.MSource(
       id: id?.toNullInt() ?? 0,
       name: name,
-      hasCloudflare: false,
-      isFullData: true,
+      hasCloudflare: hasCloudflare ?? false,
+      isFullData: isFullData ?? true,
       lang: lang,
       baseUrl: baseUrl,
+      apiUrl: apiUrl,
+      dateFormat: dateFormat,
+      dateFormatLocale: dateFormatLocale,
+      additionalParams: additionalParams,
+      notes: notes,
     );
   }
 }
