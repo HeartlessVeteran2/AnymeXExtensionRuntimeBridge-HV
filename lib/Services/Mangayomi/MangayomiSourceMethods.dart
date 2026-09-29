@@ -225,7 +225,9 @@ class MangayomiSourceMethods implements SourceMethods {
       return data.map((e) => PageUrl(e.url, headers: e.headers)).toList();
     } catch (e) {
       Logger.log("Mangayomi: getPageList failed: $e");
-      return [];
+      // Rethrown so the app can say why: an empty list only reads as
+      // "No pages found", whatever went wrong.
+      rethrow;
     }
   }
 

@@ -50,6 +50,10 @@ class MangayomiExtensions extends Extension {
 
   Future<List<Source>> _fetchExtensions(ItemType type) async {
     final repos = _loadRepos(type);
+    // The Repositories screen shows getReposRx. It was only set when a repo
+    // was added or removed, so after a restart the screen was empty while
+    // the repos kept working (AnymeX #585). Aniyomi and Sora set it here too.
+    getReposRx(type).value = repos;
     final allSources = <Source>[];
 
     for (final repo in repos) {
@@ -324,7 +328,19 @@ class MangayomiExtensions extends Extension {
     final encoded = getVal<List<String>>('$id${type.name}Repos');
     if (encoded == null) return [];
 
-    return encoded.map((e) => Repo.fromJson(jsonDecode(e))).toList();
+    return encoded.map((e) {
+      final repo = Repo.fromJson(jsonDecode(e));
+      // Removing a repo from the screen finds its manager by managerId.
+      return repo.managerId != null
+          ? repo
+          : Repo(
+              url: repo.url,
+              name: repo.name,
+              iconUrl: repo.iconUrl,
+              extensions: repo.extensions,
+              managerId: id,
+            );
+    }).toList();
   }
 
   void _saveRepos(List<Repo> repos, ItemType type) {

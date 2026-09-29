@@ -379,8 +379,24 @@ class AniyomiExtensions extends Extension {
     }
   }
 
+  // Installs and removals run one at a time. APK installs go through
+  // install_plugin, which keeps a single pending result: a second install
+  // while one was open ("Update all", or two quick taps) replaced it, and the
+  // second reply to the same call threw "Reply already submitted" on
+  // Android's main thread, which crashed the app.
+  static Future<void> _pending = Future.value();
+
+  static Future<T> _oneAtATime<T>(Future<T> Function() action) {
+    final result = _pending.then((_) => action());
+    _pending = result.then<void>((_) {}, onError: (Object _) {});
+    return result;
+  }
+
   @override
-  Future<void> installSource(Source source, {String? customPath}) async {
+  Future<void> installSource(Source source, {String? customPath}) =>
+      _oneAtATime(() => _installSource(source, customPath: customPath));
+
+  Future<void> _installSource(Source source, {String? customPath}) async {
     var aSource = source as ASource;
 
     final allAvailable = [
@@ -556,7 +572,10 @@ class AniyomiExtensions extends Extension {
   }
 
   @override
-  Future<void> uninstallSource(Source source) async {
+  Future<void> uninstallSource(Source source) =>
+      _oneAtATime(() => _uninstallSource(source));
+
+  Future<void> _uninstallSource(Source source) async {
     final s = source as ASource;
     final packageName = s.pkgName;
     if (packageName == null || packageName.isEmpty) {
