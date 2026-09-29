@@ -125,7 +125,9 @@ class DesktopAniyomiSourceMethods extends SourceMethods {
 
     if (result is Map && result.containsKey('error')) {
       Logger.log("AnymeX Bridge: getPageList failed: ${result['error']}");
-      return [];
+      // Thrown so the app can say why, as on Android: an empty list only
+      // reads as "No pages found".
+      throw Exception(result['error'].toString());
     }
 
     return compute(parsePageUrls, List<dynamic>.from(result as List));

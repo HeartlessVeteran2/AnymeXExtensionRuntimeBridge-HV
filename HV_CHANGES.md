@@ -26,6 +26,31 @@ malformed repository value is ignored instead of being passed on as text.
 [#1](https://github.com/HeartlessVeteran2/AnymeXExtensionRuntimeBridge-HV/pull/1),
 [#3](https://github.com/HeartlessVeteran2/AnymeXExtensionRuntimeBridge-HV/pull/3)
 
+## The repository list stays filled after a restart
+
+After a restart, Extensions → Repositories showed no Mangayomi repositories, although their
+extensions kept working (AnymeX #585). The Mangayomi manager read its saved repositories to
+fetch extensions, but only filled the list the screen shows when a repository was added or
+removed. It now fills it when it loads, as the Aniyomi and Sora managers do. A repository saved
+without its manager gets it, so it can still be removed from the screen.
+[#5](https://github.com/HeartlessVeteran2/AnymeXExtensionRuntimeBridge-HV/pull/5)
+
+## APK extensions install one at a time
+
+Installing two Mihon/Aniyomi extensions at once ("Update all", or two quick taps) crashed the
+app. APK installs go through install_plugin, which keeps a single pending result: the second
+install replaced it, and the second reply to the same call threw "Reply already submitted" on
+Android's main thread. Installs, updates and removals of these extensions now run one at a time.
+[#5](https://github.com/HeartlessVeteran2/AnymeXExtensionRuntimeBridge-HV/pull/5)
+
+## Page loading says why it failed
+
+When a Mangayomi source (or an Aniyomi one on desktop) failed to load a chapter's pages, the
+bridge logged the error and returned an empty list, so the app could only show "No pages
+found". It now passes the error on, as the Android Aniyomi, Kotatsu and Sora sources already
+did, so the app shows the reason: no connection, Cloudflare, a site that changed, and so on.
+[#5](https://github.com/HeartlessVeteran2/AnymeXExtensionRuntimeBridge-HV/pull/5)
+
 ## Runtime downloads come from this fork
 
 These now download from this repository's releases instead of upstream's:
